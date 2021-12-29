@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\BuildTripleBitFromN3",
+    "\\sparql",
+    "\\TripleBit",
+    "\\TripleBitInsert",
+    "\\TripleBitQuery"
+  ],
+  "SelectedNode": "\\BuildTripleBitFromN3\\BuildTripleBit.cpp",
+  "PreviewInSolutionExplorer": false
+}
