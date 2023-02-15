@@ -447,9 +447,14 @@ Status TripleBitBuilder::resolveTriples(TempFile &rawFacts)
   }
   // sta_one_s->flush();
   // sta_one_o->flush();
+
   sta_one_p->flush();
   sta_two_sp->flush();
   sta_two_op->flush();
+  
+  sta_one_p->print();
+  sta_two_sp->print();
+  sta_two_op->print();
   //计算快照位置
   // cout<<"计算快照位置"<<endl;
   logmap->SnapShotSequence();
@@ -563,6 +568,7 @@ Status TripleBitBuilder::endBuild()
 {
   timemap->time_mmap->flush();
   logmap->save();
+  
   for(int i = 0; i < snapshots.size(); i++){
     snapshots[i]->save(i);
   }

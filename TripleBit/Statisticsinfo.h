@@ -43,6 +43,7 @@ public:
     StatisticInfo_One(StaType type, string path);
     void write(ID first, int count);
     void flush();
+    void print();
 };
 
 class StatisticInfo_Two : public StatisticsInfo{
@@ -53,6 +54,7 @@ public:
     StatisticInfo_Two(StaType type, string path);
     void write(ID first, ID second, int count);
     void flush();
+    void print();
 };
 
 #endif
