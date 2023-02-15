@@ -42,4 +42,4 @@ bin/lrelease/triplebitInsert database/ sparql/
 加载完成后，出现“ \>\> ” 提示输入查询语句文件。
 
 # 2023年2月15日更新
- 加入统计信息模块(未完成)
+ 加入统计信息模块(已完成)
