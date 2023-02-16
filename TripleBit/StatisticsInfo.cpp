@@ -21,7 +21,7 @@ void StatisticInfo_One::flush(){
     for(auto &id : temp_map){
         //如果超出，申请空间
         if(startmeta->used_space+len>st_buf->getSize()){
-            st_buf->resize(10*MemoryBuffer::pagesize);
+            st_buf->resize(MemoryBuffer::pagesize);
             startptr = st_buf->get_address();
             startmeta = (StatMeta*)startptr;
             start = startptr + sizeof(StatMeta) + (startmeta->used_page-1) * MemoryBuffer::pagesize;
@@ -37,7 +37,7 @@ void StatisticInfo_One::flush(){
             startmeta->used_page++;
             startmeta->used_space += sizeof(StatDataMeta);
             if(startmeta->used_space+len>st_buf->getSize()){
-                st_buf->resize(10*MemoryBuffer::pagesize);
+                st_buf->resize(MemoryBuffer::pagesize);
                 startptr = st_buf->get_address();
                 StatMeta *startmeta = (StatMeta*)startptr;
                 
@@ -70,7 +70,6 @@ void StatisticInfo_One::print(){
     StatMeta *stameta = (StatMeta*)st_buf->get_address();
     uchar *start = st_buf->get_address()+sizeof(StatMeta), *end = start+stameta->used_space;
     StatDataMeta *datameta = (StatDataMeta*)start; 
-    // uchar *reader = (uchar*)datameta;
     fout<<"stameta->type : "<<stameta->type<<endl;
     fout<<"stameta->used_page : "<<stameta->used_page<<endl;
     fout<<"stameta->used_space : "<<stameta->used_space<<endl;
@@ -110,7 +109,7 @@ void StatisticInfo_Two::flush(){
             
                     //如果超出，申请空间
             if(startmeta->used_space+len>st_buf->getSize()){
-                startptr = st_buf->resize(MemoryBuffer::pagesize);
+                startptr = st_buf->resize(INIT_PAGE_COUNT*MemoryBuffer::pagesize);
                 
                 startmeta = (StatMeta*)startptr;
                 start = startptr+sizeof(StatMeta) + (startmeta->used_page-1) * MemoryBuffer::pagesize;
@@ -130,7 +129,7 @@ void StatisticInfo_Two::flush(){
                 startmeta->used_space += sizeof(StatDataMeta);
                 
                 if(startmeta->used_space+len>st_buf->getSize()){
-                    st_buf->resize(10*MemoryBuffer::pagesize);
+                    st_buf->resize(INIT_PAGE_COUNT*MemoryBuffer::pagesize);
                     startptr = st_buf->get_address();
                     startmeta = (StatMeta*)startptr;
                     
@@ -165,7 +164,7 @@ void StatisticInfo_Two::print(){
     StatMeta *stameta = (StatMeta*)st_buf->get_address();
     uchar *start = st_buf->get_address()+sizeof(StatMeta), *end = start+stameta->used_space;
     StatDataMeta *datameta = (StatDataMeta*)start; 
-    // uchar *reader = (uchar*)datameta;
+
     fout<<"stameta->type : "<<stameta->type<<endl;
     fout<<"stameta->used_page : "<<stameta->used_page<<endl;
     fout<<"stameta->used_space : "<<stameta->used_space<<endl;
@@ -187,6 +186,14 @@ void StatisticInfo_Two::print(){
         start = start+MemoryBuffer::pagesize;
         datameta = (StatDataMeta*)start;
     }
+}
+
+void StatisticsInfo::load(StaType type, string dir){
+    path  = dir;
+    this->type = type;
+    string filename = dir+"/StatisticInfo_"+toStr(type);
+    st_buf = new MMapBuffer(filename.c_str());
+    startptr = st_buf->get_address();
 }
 
 StatisticInfo_Two::StatisticInfo_Two(StaType type, string dir){

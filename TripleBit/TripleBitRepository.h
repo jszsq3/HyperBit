@@ -47,6 +47,7 @@ class QueryInfo;
 #include "LogmapBuffer.h"
 #include "TimeMap.h"
 #include "SPARQLParser.h"
+#include "Statisticsinfo.h"
 
 
 class TripleBitRepository : public IRepository
@@ -89,6 +90,10 @@ public:
 
     //	some thing about QueryTest
     IndexForTT *indexForTT;
+
+    //Statistics
+    StatisticInfo_One *sta_p;
+    StatisticInfo_Two *sta_sp, *sta_op;
 
 public:
     //	vector<boost::mutex> tasksQueueMutex;

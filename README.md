@@ -43,3 +43,6 @@ bin/lrelease/triplebitInsert database/ sparql/
 
 # 2023年2月15日更新
  加入统计信息模块(已完成)
+
+# 2023年2月16日更新
+ 优化查询（未完成）

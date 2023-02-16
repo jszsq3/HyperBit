@@ -37,6 +37,7 @@ int main(int argc, char* argv[]) {
 	vector<vector<float>> timess(5,vector<float>(7));
 	string qufi;
 	cout<<">>";
+	/*===standard====*/
 	// while(cin>>qufi){
 	// 	string queryfile = argv[2]+qufi;
 	// 	gettimeofday(&start, NULL);
@@ -45,7 +46,8 @@ int main(int argc, char* argv[]) {
 	// 	cout << "query time: " << ((end.tv_sec - start.tv_sec) * 1000000 + end.tv_usec - start.tv_usec) / 1000000.0 << "s" << endl;
 	// 	cout<<">>";
 	// }
-
+	/*===test====*/
+	float sumtime = 0;
 	for(int i = 1 ; i < 6; i++){
 		for(int j = 1; j < 8 ; j++){
 			string queryfile = argv[2]+toStr(j)+toStr(i);
@@ -56,14 +58,17 @@ int main(int argc, char* argv[]) {
 			float tmp = ((end.tv_sec - start.tv_sec) * 1000000 + end.tv_usec - start.tv_usec) / 1000000.0;
 			timess[i-1][j-1] = tmp;
 			cout << "query time: " << ((end.tv_sec - start.tv_sec) * 1000000 + end.tv_usec - start.tv_usec) / 1000000.0 << "s" << endl;
+			sumtime += tmp;
 		}
 	}
+	
 	for(auto &i:timess){
 		for(auto &j:i){
 			cout<<fixed<<setprecision(4)<<j<<"\t";
 		}
 		cout<<endl;
 	}
+	cout<<"sumtime : "<<sumtime<<endl;
 		
 		
 	
