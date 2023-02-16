@@ -30,6 +30,7 @@
 
 // #define ZSQDEBUG
 //#define MYDEBUG
+// #define QUERYDEBUG
 int TripleBitRepository::colNo = INT_MAX - 1;
 
 TripleBitRepository::TripleBitRepository()
@@ -1542,24 +1543,37 @@ void QueryInfo::join(set<vector<ID>>& mmid_ans){
     // }
     //排个序end
 
-    // set<int> pattern_set;
+    set<int> pattern_set;
+    for(auto &key:proj_appear_nodes[new_projv[0]]){
+      pattern_set.insert(key);
+    }
 
     for(int index = 0 ; index < new_projv.size(); index++){
       //i : 变量ID index
       //j : triplenode ID
       int i = new_projv[index];
+#ifdef QUERYDEBUG
+      cout<<"变量 : "<<i<<endl;
+      cout<<"pattern_set.size()"<<pattern_set.size()<<endl;
+      for(auto &key:pattern_set){
+        cout<<"---"<<key<<"---";cout<<endl;
+      }
+#endif
       //排个序
-      vector<pair<int,int>> sortv(proj_appear_nodes[i].size());
-      for(int k = 0; k < sortv.size(); k++){
-        sortv[k].first = proj_appear_nodes[i][k];
-        sortv[k].second = mid_rs[sortv[k].first].size();
-      }
-      sort(sortv.begin(),sortv.end(),[](pair<int,int> a, pair<int,int> b){ return a.second<b.second;});
-      for(int k = 0 ; k<sortv.size();k++){
-        proj_appear_nodes[i][k] = sortv[k].first;
-      }
-      //排个序end
-      for(auto &j:proj_appear_nodes[i]){
+      while(pattern_set.size()!=0){
+
+        vector<pair<int,size_t>> sortv(pattern_set.size());
+        int sort_index = 0;
+        for(auto &k:pattern_set){
+          sortv[sort_index].first = k;
+          sortv[sort_index].second = mid_rs[k].size();
+          sort_index++;
+        }
+        // sort(sortv.begin(),sortv.end(),[](pair<int,size_t> a, pair<int,size_t> b){
+        //   return a.second<b.second;
+        // });
+
+        int j = sortv[0].first;
         if(pattern_visited[j]==1){
           continue;
         }
@@ -1603,6 +1617,20 @@ void QueryInfo::join(set<vector<ID>>& mmid_ans){
             mmid_mode = mmid_mode|(1<<(vid2-1));
             proj_vis[vid1-1] = 1;
             proj_vis[vid2-1] = 1;
+            //将另一个变量的pattern加入set
+            if(vid1==i){
+              for(auto &proj_id:proj_appear_nodes[vid2]){
+                if(pattern_visited[proj_id]!=1){
+                  pattern_set.insert(proj_id);
+                }
+              }
+            }else if(vid2==i){
+              for(auto &proj_id:proj_appear_nodes[vid1]){
+                if(pattern_visited[proj_id]!=1){
+                  pattern_set.insert(proj_id);
+                }
+              }
+            }
             for(auto &res:mid_rs[j]){
               vector<ID> res_cell(proj_size,0);
               res_cell[vid1-1] = res[0];
@@ -1628,6 +1656,11 @@ void QueryInfo::join(set<vector<ID>>& mmid_ans){
                 //如果有1个交集
                 if(proj_vis[vid1-1]!=0){//如果是vid1已经join过
                   proj_vis[vid2-1]=1;
+                  for(auto &proj_id:proj_appear_nodes[vid2]){
+                    if(pattern_visited[proj_id]!=1){
+                      pattern_set.insert(proj_id);
+                    }
+                  }
                   map<ID, vector<ID>> tmp_map;
                   for(auto &mid_rs_iter:mid_rs[j]){
                     tmp_map[mid_rs_iter[0]].push_back(mid_rs_iter[1]);
@@ -1644,6 +1677,11 @@ void QueryInfo::join(set<vector<ID>>& mmid_ans){
                   }
                 }else if(proj_vis[vid2-1]!=0){//如果是vid2已经join过
                   proj_vis[vid1-1]=1;
+                  for(auto &proj_id:proj_appear_nodes[vid1]){
+                    if(pattern_visited[proj_id]!=1){
+                      pattern_set.insert(proj_id);
+                    }
+                  }
                   map<ID, vector<ID>> tmp_map;
                   for(auto &mid_rs_iter:mid_rs[j]){
                     tmp_map[mid_rs_iter[1]].push_back(mid_rs_iter[0]);
@@ -1665,7 +1703,134 @@ void QueryInfo::join(set<vector<ID>>& mmid_ans){
             }
           }
         }
+        pattern_set.erase(j);
+#ifdef QUERYDEBUG
+      cout<<"pattern_set.size()"<<pattern_set.size()<<endl;
+      for(auto &key:pattern_set){
+        cout<<"---"<<key<<"---";cout<<endl;
+      }
+#endif
         cout<<"middle results number : "<<mmid_ans.size()<<endl;
       }
+
+
+      // vector<pair<int,int>> sortv(pattern_set.size());
+      // int sort_index = 0;
+      // for(auto &k:pattern_set){
+      //   sortv[sort_index].first = k;
+      //   sortv[sort_index].second = mid_rs[sortv[k].first].size();
+      //   sort_index++;
+      // }
+      // sort(sortv.begin(),sortv.end(),[](pair<int,int> a, pair<int,int> b){ return a.second<b.second;});
+      
+      // //排个序end
+      // for(auto &j:proj_appear_nodes[i]){
+      //   if(pattern_visited[j]==1){
+      //     continue;
+      //   }
+      //   cout<<"pattern: "<<j<<" size: "<<mid_rs[j].size()<<endl;
+      //   set<vector<ID>> tmp;
+      //   //如果单个变量
+      //   if(projection_sim[j].size()==1){
+      //     int vid = projection_sim[j][0];
+      //     if(mmid_mode==0){
+      //       pattern_visited[j]=1;//已访问j的中间结果
+      //       //如果还没有中间结果
+      //       mmid_mode = mmid_mode|(1<<(vid-1));
+      //       proj_vis[vid-1] = 1;
+      //       for(auto &res:mid_rs[j]){
+      //         vector<ID> res_cell(proj_size,0);
+      //         res_cell[vid-1] = res[0];
+      //         tmp.insert(res_cell);
+      //       }
+      //       mmid_ans = tmp;
+      //     }else{
+      //       //如果已经有结果
+      //       if(proj_vis[vid-1]!=0){
+      //         pattern_visited[j]=1;//已访问j的中间结果
+      //         for(auto &cell:mmid_ans){
+      //           if(mid_rs[j].find({cell[vid-1]})!=mid_rs[j].end()){
+      //             tmp.insert(cell);
+      //           }
+      //         }
+      //         mmid_ans = tmp; 
+      //       }
+      //     }
+      //   }
+      //   //如果2个变量
+      //   else if(projection_sim[j].size()==2){
+      //     int vid1 = projection_sim[j][0];
+      //     int vid2 = projection_sim[j][1];
+      //     if(mmid_mode==0){
+      //       pattern_visited[j]=1;//已访问j的中间结果
+      //       //如果还没有中间结果
+      //       mmid_mode = mmid_mode|(1<<(vid1-1));
+      //       mmid_mode = mmid_mode|(1<<(vid2-1));
+      //       proj_vis[vid1-1] = 1;
+      //       proj_vis[vid2-1] = 1;
+      //       for(auto &res:mid_rs[j]){
+      //         vector<ID> res_cell(proj_size,0);
+      //         res_cell[vid1-1] = res[0];
+      //         res_cell[vid2-1] = res[1];
+      //         tmp.insert(res_cell);
+      //       }
+      //       mmid_ans = tmp;
+      //     }else{
+      //       //如果已经有中间结果集
+      //       if(proj_vis[vid1-1]!=0||proj_vis[vid2-1]!=0){
+      //         pattern_visited[j]=1;//已访问j的中间结果
+      //         //投影有交
+              
+      //         if(proj_vis[vid1-1]!=0&&proj_vis[vid2-1]!=0){
+      //           //如果有2个交集
+      //           for(auto &cell:mmid_ans){
+      //             if(mid_rs[j].find({cell[vid1-1], cell[vid2-1]})!=mid_rs[j].end()){
+      //               tmp.insert(cell);
+      //             }
+      //           }
+      //           mmid_ans = tmp; 
+      //         }else{
+      //           //如果有1个交集
+      //           if(proj_vis[vid1-1]!=0){//如果是vid1已经join过
+      //             proj_vis[vid2-1]=1;
+      //             map<ID, vector<ID>> tmp_map;
+      //             for(auto &mid_rs_iter:mid_rs[j]){
+      //               tmp_map[mid_rs_iter[0]].push_back(mid_rs_iter[1]);
+      //             }
+      //             for(auto &cell:mmid_ans){
+      //               if(tmp_map.find(cell[vid1-1])!=tmp_map.end()){
+      //                 auto tmp_vec = tmp_map[cell[vid1-1]];
+      //                 for(auto tmp_vec_iter:tmp_vec){
+      //                   vector<ID> tmp_cell = cell;
+      //                   tmp_cell[vid2-1] = tmp_vec_iter;
+      //                   tmp.insert(tmp_cell);
+      //                 }
+      //               }
+      //             }
+      //           }else if(proj_vis[vid2-1]!=0){//如果是vid2已经join过
+      //             proj_vis[vid1-1]=1;
+      //             map<ID, vector<ID>> tmp_map;
+      //             for(auto &mid_rs_iter:mid_rs[j]){
+      //               tmp_map[mid_rs_iter[1]].push_back(mid_rs_iter[0]);
+      //             }
+      //             for(auto &cell:mmid_ans){
+      //               if(tmp_map.find(cell[vid2-1])!=tmp_map.end()){
+      //                 auto tmp_vec = tmp_map[cell[vid2-1]];
+      //                 for(auto tmp_vec_iter:tmp_vec){
+      //                   vector<ID> tmp_cell = cell;
+      //                   tmp_cell[vid1-1] = tmp_vec_iter;
+      //                   tmp.insert(tmp_cell);
+      //                 }
+      //               }
+      //             }
+      //           }
+      //           mmid_ans = tmp;
+      //         }
+              
+      //       }
+      //     }
+      //   }
+      //   cout<<"middle results number : "<<mmid_ans.size()<<endl;
+      // }
     }
 }
