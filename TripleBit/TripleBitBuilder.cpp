@@ -452,9 +452,9 @@ Status TripleBitBuilder::resolveTriples(TempFile &rawFacts)
   sta_two_sp->flush();
   sta_two_op->flush();
   
-  sta_one_p->print();
-  sta_two_sp->print();
-  sta_two_op->print();
+  // sta_one_p->print();
+  // sta_two_sp->print();
+  // sta_two_op->print();
   //计算快照位置
   // cout<<"计算快照位置"<<endl;
   logmap->SnapShotSequence();

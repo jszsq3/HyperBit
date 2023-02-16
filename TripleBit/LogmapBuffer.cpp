@@ -783,31 +783,20 @@ void LogmapBuffer::SnapShotSequence(){
 }
 
 void LogmapBuffer::init_for_query(){
-    ofstream out("./log_print");
-    // const string dir;
-    // uchar *mmapaddres;
-    // map<ID, LogChunkManager *> log_pre_managers;
-    // MMapBuffer *templogbuffer;
-    // size_t usedPage;
-    // map<TimeStamp, size_t> records_count;
-    // int number_of_sp;
-    // vector<TimeStamp> sequence_of_sp;
-    // mutex mutex_logmap;
+    // ofstream out("./log_print");
+
     uchar *reader = mmapaddres, *limit = templogbuffer->getSize()+reader;
     while(reader<limit){
         LogChunkMeta *meta = (LogChunkMeta*)reader;
         ID pid = meta->pid;
-        // if(pid==0){
-        //     reader += MemoryBuffer::pagesize;
-        //     continue;
-        // }
-        out<<"meta->max_ts"<<":"<<meta->max_ts<<endl;
-        out<<"meta->min_ts"<<":"<<meta->min_ts<<endl;
-        out<<"meta->pid"<<":"<<meta->pid<<endl;
-        out<<"meta->page_no"<<":"<<meta->page_no<<endl;
-        out<<"meta->next_page_no"<<":"<<meta->next_page_no<<endl;
-        out<<"meta->used_space"<<":"<<meta->used_space<<endl;
-        out<<"============================"<<endl;
+
+        // out<<"meta->max_ts"<<":"<<meta->max_ts<<endl;
+        // out<<"meta->min_ts"<<":"<<meta->min_ts<<endl;
+        // out<<"meta->pid"<<":"<<meta->pid<<endl;
+        // out<<"meta->page_no"<<":"<<meta->page_no<<endl;
+        // out<<"meta->next_page_no"<<":"<<meta->next_page_no<<endl;
+        // out<<"meta->used_space"<<":"<<meta->used_space<<endl;
+        // out<<"============================"<<endl;
         
         if(log_pre_managers.find(pid)==log_pre_managers.end()){
             log_pre_managers[pid] = new LogChunkManager();

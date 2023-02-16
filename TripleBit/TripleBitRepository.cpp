@@ -317,6 +317,19 @@ TripleBitRepository *TripleBitRepository::create(const string &path)
   }
 
   repo->buffer = new EntityIDBuffer();
+
+  //load statistics
+  repo->sta_p = new StatisticInfo_One();
+  repo->sta_p->load(StatisticsInfo::ONLYP,path);
+  repo->sta_sp = new StatisticInfo_Two();
+  repo->sta_sp->load(StatisticsInfo::SANDP,path);
+  repo->sta_op = new StatisticInfo_Two();
+  repo->sta_op->load(StatisticsInfo::OANDP,path);
+
+  // repo->sta_p->print();
+  // repo->sta_sp->print();
+  // repo->sta_op->print();
+
   // cout<<repo->logmapBuffer->usedPage<<endl;
 
 //   repo->bitmapImage =
@@ -1504,9 +1517,48 @@ void QueryInfo::join(set<vector<ID>>& mmid_ans){
     vector<int> pattern_visited(mid_rs.size(),0);
     
     vector<int> proj_vis(proj_size,0);
-    for(int i = 1 ; i < proj_appear_nodes.size(); i++){
-      //i : 变量ID
+
+    //排个序
+    vector<pair<int,int>> sortvv(projection_sim.size());
+    for(int k = 0; k < sortvv.size(); k++){
+      sortvv[k].first = k;
+      sortvv[k].second = mid_rs[sortvv[k].first].size();
+    }
+    sort(sortvv.begin(),sortvv.end(),[](pair<int,int> a, pair<int,int> b){ return a.second<b.second;});
+    vector<int> new_projv;
+    set<int> new_projv_set;
+    for(int k = 0 ; k<sortvv.size();k++){
+      int min_pattern = sortvv[k].first;
+      vector<int> this_pattern_proj_set = projection_sim[min_pattern];
+      for(auto &pro:this_pattern_proj_set){
+        if(new_projv_set.find(pro)==new_projv_set.end()){
+          new_projv.push_back(pro);
+          new_projv_set.insert(pro);
+        }
+      }
+    }
+    // for(auto &pro:new_projv){
+    //   cout<<pro<<endl;
+    // }
+    //排个序end
+
+    // set<int> pattern_set;
+
+    for(int index = 0 ; index < new_projv.size(); index++){
+      //i : 变量ID index
       //j : triplenode ID
+      int i = new_projv[index];
+      //排个序
+      vector<pair<int,int>> sortv(proj_appear_nodes[i].size());
+      for(int k = 0; k < sortv.size(); k++){
+        sortv[k].first = proj_appear_nodes[i][k];
+        sortv[k].second = mid_rs[sortv[k].first].size();
+      }
+      sort(sortv.begin(),sortv.end(),[](pair<int,int> a, pair<int,int> b){ return a.second<b.second;});
+      for(int k = 0 ; k<sortv.size();k++){
+        proj_appear_nodes[i][k] = sortv[k].first;
+      }
+      //排个序end
       for(auto &j:proj_appear_nodes[i]){
         if(pattern_visited[j]==1){
           continue;
